@@ -5,6 +5,31 @@ Local-first tool that turns one source MP4 into three distinct 10-second vertica
 Everything runs on your machine: no accounts, no external analytics, no external video services.
 AI ideation is optional (Mock mode by default).
 
+## Quick start
+
+**Run it**
+
+1. Install Node.js 20.9+ and FFmpeg (macOS: `brew install ffmpeg`; Ubuntu/Debian: `sudo apt install ffmpeg`).
+2. In the project folder:
+   ```bash
+   npm install
+   npm run dev
+   ```
+3. Open http://localhost:3000. Without any setup it runs in **Mock mode** (offline, free).
+   For real AI ideas, copy `.env.example` to `.env`, set `GEMINI_API_KEY` (and `AI_PROVIDER=gemini`), restart, then pick Gemini next to the Create button.
+
+**Use it**
+
+1. **Source**: upload an MP4 where the product is in use, paste the original script, describe the product (start with its name),
+   write a CTA, pick how many concepts you want (3, 6 or 9), pick the 6-second demo segment, then press **Create concepts**.
+2. **Concepts**: each card is a different creative angle with a hook, opening line, on-screen text and CTA. Edit any field.
+   Switch **Make a video** on for the concepts you want (the first 3 start on, up to 5), then press **Create videos**.
+3. **Review**: watch each video, **Accept** or **Reject** it (a short reason is optional), download the accepted ones as MP4,
+   then press **Finish session** for a summary page with the approved videos.
+4. **Insights** (top right): time on ideas vs video, approved concepts, editing effort and cost per concept. Nothing leaves your computer.
+
+Check everything works: `npm run test:unit`, and with the server running `npm run demo`.
+
 Flow: **Source → Concepts → Review**. Step 1: upload the video, paste script/product/CTA, choose 3, 6 (default) or 9 concepts.
 Step 2: every concept (angle, hook, opening line, on-screen text, CTA, rationale) is a plain editable form with one
 "Make a video" switch (the first 3 start on, up to 5 allowed); create the videos from there. Step 3: preview,
