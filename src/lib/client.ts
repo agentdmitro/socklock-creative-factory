@@ -24,6 +24,7 @@ export function uploadSource(file: File, onProgress: (pct: number) => void, sess
     xhr.upload.onprogress = (e) => e.lengthComputable && onProgress((e.loaded / e.total) * 100);
     xhr.onerror = () => reject(new Error("Network error while uploading. Is the dev server still running?"));
     xhr.onload = () => {
+      if (xhr.status === 413) return reject(new Error("This host rejects uploads that large (Vercel allows about 4.5 MB). Use a shorter or more compressed clip, or run the app locally."));
       try {
         const data = JSON.parse(xhr.responseText) as SourceInfo & Partial<ApiError>;
         if (xhr.status >= 200 && xhr.status < 300) resolve(data);

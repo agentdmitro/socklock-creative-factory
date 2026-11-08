@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import path from "node:path";
 import { GlobalFonts, type SKRSContext2D } from "@napi-rs/canvas";
 
 const FONT_CANDIDATES = [
@@ -9,6 +10,8 @@ const FONT_CANDIDATES = [
   "/usr/share/fonts/liberation/LiberationSans-Bold.ttf",
   "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
   "C:\\Windows\\Fonts\\arialbd.ttf",
+  // Bundled through npm (DejaVu Sans Bold, free licence, has Latin and Cyrillic): last resort when the host has no fonts (e.g. Vercel).
+  path.join(process.cwd(), "node_modules/dejavu-fonts-ttf/ttf/DejaVuSans-Bold.ttf"),
 ].filter(Boolean);
 
 const FAMILY = "CFSans";

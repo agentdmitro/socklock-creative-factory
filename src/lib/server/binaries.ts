@@ -1,10 +1,28 @@
 import { execFile, spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import type { HealthReport } from "@/lib/types";
+import ffmpegStatic from "ffmpeg-static";
+import { path as ffprobeStatic } from "@ffprobe-installer/ffprobe";
 import { fontPath } from "./text";
 
-const FFMPEG = process.env.FFMPEG_PATH || "ffmpeg";
-const FFPROBE = process.env.FFPROBE_PATH || "ffprobe";
+/**
+ * Which binary to run: FFMPEG_PATH / FFPROBE_PATH if set, else the one on PATH, else the copy bundled through npm
+ * (ffmpeg-static, @ffprobe-installer). The bundled copy is what makes hosts without a system FFmpeg (e.g. Vercel) work.
+ */
+const resolved = new Map<string, Promise<string>>();
+function resolveBin(name: "ffmpeg" | "ffprobe", envVar: string, bundled: string | null | undefined): Promise<string> {
+  const explicit = process.env[envVar]?.trim();
+  if (explicit) return Promise.resolve(explicit);
+  let hit = resolved.get(name);
+  if (!hit) {
+    const fallback = bundled && existsSync(bundled) ? bundled : name;
+    hit = (process.env.VERCEL ? Promise.resolve(null) : versionOf(name)).then((v) => (v ? name : fallback));
+    resolved.set(name, hit);
+  }
+  return hit;
+}
+const FFMPEG = () => resolveBin("ffmpeg", "FFMPEG_PATH", ffmpegStatic);
+const FFPROBE = () => resolveBin("ffprobe", "FFPROBE_PATH", ffprobeStatic);
 
 export class ProcessError extends Error {
   constructor(message: string, readonly stderr: string) {
@@ -27,7 +45,7 @@ let healthCache: { at: number; value: Omit<HealthReport, "ai"> } | null = null;
 /** `maxAgeMs` lets hot paths (uploads) reuse a recent healthy result instead of spawning two processes each time. */
 export async function checkHealth(maxAgeMs = 0): Promise<Omit<HealthReport, "ai">> {
   if (maxAgeMs && healthCache?.value.ok && Date.now() - healthCache.at < maxAgeMs) return healthCache.value;
-  const [ffmpeg, ffprobe] = await Promise.all([versionOf(FFMPEG), versionOf(FFPROBE)]);
+  const [ffmpeg, ffprobe] = await Promise.all([FFMPEG().then(versionOf), FFPROBE().then(versionOf)]);
   const font = fontPath();
   const problems: string[] = [];
   if (!ffmpeg) problems.push("FFmpeg was not found. Install it (macOS: brew install ffmpeg) or set FFMPEG_PATH.");
@@ -62,5 +80,5 @@ function run(bin: string, args: string[], timeoutMs: number): Promise<string> {
   });
 }
 
-export const ffprobe = (args: string[]) => run(FFPROBE, args, 30_000);
-export const ffmpeg = (args: string[]) => run(FFMPEG, args, 180_000);
+export const ffprobe = async (args: string[]) => run(await FFPROBE(), args, 30_000);
+export const ffmpeg = async (args: string[]) => run(await FFMPEG(), args, 180_000);

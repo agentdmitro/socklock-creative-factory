@@ -15,10 +15,13 @@
     "demo": "node scripts/smoke.mjs"
   },
   "dependencies": {
+    "@ffprobe-installer/ffprobe": "^2.1.2",
     "@google/genai": "3.0.0",
     "@hugeicons/core-free-icons": "^4.4.0",
     "@hugeicons/react": "^1.1.10",
     "@napi-rs/canvas": "^1.1.0",
+    "dejavu-fonts-ttf": "^2.37.3",
+    "ffmpeg-static": "^5.3.0",
     "next": "^16.4.5",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"

@@ -1,4 +1,5 @@
 import { appendFile, mkdir, readFile, stat } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import type { AnalyticsEvent, EventType, Scalar } from "@/lib/analytics";
 import { isJobId } from "./jobs";
@@ -10,7 +11,8 @@ import { isJobId } from "./jobs";
  * It stores counts, durations, ids and costs only: never script text, copy, file names or prompts.
  */
 
-export const dataDir = () => process.env.CVF_DATA_DIR?.trim() || path.join(process.cwd(), "data");
+// On Vercel the project folder is read-only; /tmp is writable but temporary, so Insights there only lasts a while.
+export const dataDir = () => process.env.CVF_DATA_DIR?.trim() || (process.env.VERCEL ? path.join(os.tmpdir(), "cvf-data") : path.join(process.cwd(), "data"));
 const eventsFile = () => path.join(dataDir(), "events.jsonl");
 
 /** Session ids share the UUID shape used for job ids. */

@@ -35,7 +35,15 @@ const config: NextConfig = {
       },
     ];
   },
-  serverExternalPackages: ["@napi-rs/canvas"],
+  serverExternalPackages: ["@napi-rs/canvas", "ffmpeg-static", "@ffprobe-installer/ffprobe"],
+  // Binaries and the font are loaded by path at runtime, so tell the file tracer to ship them with the API routes.
+  outputFileTracingIncludes: {
+    "/api/**": [
+      "./node_modules/ffmpeg-static/ffmpeg",
+      "./node_modules/@ffprobe-installer/linux-x64/**",
+      "./node_modules/dejavu-fonts-ttf/ttf/DejaVuSans-Bold.ttf",
+    ],
+  },
   poweredByHeader: false,
   // Lets an isolated production build (e.g. for validation) live beside a running `next dev`.
   distDir: process.env.CVF_DIST_DIR || ".next",

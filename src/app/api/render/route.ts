@@ -8,7 +8,7 @@ import type { RenderRequest } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 180;
+export const maxDuration = 60; // a render takes seconds; 60 s fits every Vercel plan
 
 /** At most two FFmpeg renders at once, however many requests arrive. */
 const renderSlots = new Semaphore(2);

@@ -28,6 +28,10 @@ AI ideation is optional (Mock mode by default).
    then press **Finish session** for a summary page with the approved videos.
 4. **Insights** (top right): time on ideas vs video, approved concepts, editing effort and cost per concept. Nothing leaves your computer.
 
+**On Vercel** FFmpeg, ffprobe and a font ship with the app through npm, so nothing needs installing. Limits of that host: uploads are
+capped at about 4.5 MB, files in `/tmp` are temporary (a render can lose its source if the next request lands on another
+instance) and Insights history is short-lived. For real use, run it locally or on a server/container.
+
 Check everything works: `npm run test:unit`, and with the server running `npm run demo`.
 
 Flow: **Source → Concepts → Review**. Step 1: upload the video, paste script/product/CTA, choose 3, 6 (default) or 9 concepts.
