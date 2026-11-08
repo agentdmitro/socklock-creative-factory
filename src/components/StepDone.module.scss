@@ -1,0 +1,81 @@
+.hero {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--s4);
+}
+
+.heroIcon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: var(--s3);
+}
+
+.grid {
+  display: grid;
+  gap: var(--s4);
+  grid-template-columns: repeat(auto-fill, minmax(240px, 300px));
+}
+
+.item {
+  gap: var(--s3);
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+}
+
+.name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.hook {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.small {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.reason {
+  font-size: 13.5px;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.rejectedList {
+  display: grid;
+  gap: var(--s3);
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.rejected {
+  gap: var(--s2);
+  padding: var(--s4);
+  opacity: 0.85;
+}

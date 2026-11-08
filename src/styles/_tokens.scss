@@ -1,0 +1,15 @@
+// Compile-time tokens shared by component modules. Runtime colours/spacing live in app/globals.scss as CSS variables.
+$bp-sm: 560px;
+$bp-md: 640px;
+$bp-lg: 900px;
+
+@mixin from($bp) {
+  @media (min-width: $bp) {
+    @content;
+  }
+}
+
+// Segment colours of the 10-second ad timeline: hook, demo, call to action.
+$seg-hook: #e4572e;
+$seg-demo: #2f5d50;
+$seg-cta: #2646e6;

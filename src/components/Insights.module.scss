@@ -1,0 +1,252 @@
+@use "../styles/tokens" as *;
+
+.head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s4);
+  flex-wrap: wrap;
+}
+
+.scope {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  font-size: 13px;
+  color: var(--text-muted);
+
+  select {
+    padding: 8px 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+  }
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.empty {
+  text-align: center;
+  padding-block: var(--s7);
+}
+
+.tiles {
+  display: grid;
+  gap: var(--s3);
+  margin: 0;
+  grid-template-columns: 1fr;
+
+  @include from($bp-sm) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @include from($bp-lg) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.tile {
+  padding: var(--s4) var(--s5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+
+  dt {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+.value {
+  margin-top: var(--s1);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums;
+}
+
+.note {
+  font-size: 12.5px;
+  color: var(--text-faint);
+  margin-top: 2px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+
+  th,
+  td {
+    padding: var(--s3) var(--s2);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  thead th {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  tbody th {
+    font-weight: 500;
+  }
+}
+
+.num {
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+.measuredRow th,
+.measuredRow td {
+  font-weight: 700;
+  border-bottom: 0;
+}
+
+.caveat {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.list {
+  margin: 0;
+  display: grid;
+  gap: 0;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s4);
+  padding: var(--s2) 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  dt {
+    color: var(--text-muted);
+  }
+
+  dd {
+    margin: 0;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+
+    span {
+      color: var(--text-faint);
+      font-size: 12.5px;
+    }
+  }
+}
+
+.export {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+
+.titleIcon,
+.emptyIcon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.emptyIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.chip {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-right: var(--s2);
+  border-radius: var(--radius-sm);
+  vertical-align: middle;
+}
+
+.ok { background: var(--ok-soft); color: var(--ok); }
+.accent { background: var(--accent-soft); color: var(--accent); }
+.neutral { background: var(--surface-sunken); color: var(--text-muted); }
+.forecast { background: var(--forecast-soft); color: var(--forecast); }
+
+.rowIcon {
+  margin-right: var(--s2);
+  vertical-align: -3px;
+  color: var(--text-faint);
+}
+
+.barCol {
+  width: 38%;
+  min-width: 90px;
+
+  @include from($bp-md) {
+    min-width: 160px;
+  }
+}
+
+.track {
+  display: block;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.bar_neutral { background: var(--border-strong); }
+.bar_target { background: var(--forecast-border); }
+.bar_measured { background: var(--ok); }

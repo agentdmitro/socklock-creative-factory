@@ -1,0 +1,245 @@
+@use "../styles/tokens" as *;
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s5);
+}
+
+.banner,
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding: var(--s5);
+  background: var(--forecast-soft);
+  border: 1px dashed var(--forecast-border);
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  color: var(--text);
+}
+
+.results {
+  background: var(--surface);
+}
+
+.bannerHead {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.group {
+  margin: 0;
+  padding: var(--s5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  min-width: 0;
+
+  legend {
+    padding: 0 var(--s2);
+    font-size: 14px;
+    font-weight: 700;
+  }
+}
+
+.grid {
+  display: grid;
+  gap: var(--s4);
+  grid-template-columns: 1fr;
+
+  @include from($bp-md) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.cols {
+  display: grid;
+  gap: var(--s4);
+  grid-template-columns: 1fr;
+
+  @include from($bp-md) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  padding: var(--s4);
+  background: var(--surface-sunken);
+  border-radius: var(--radius);
+}
+
+.colTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--forecast);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.use {
+  align-self: flex-start;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+
+  span {
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+}
+
+.actions {
+  display: flex;
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+
+  th,
+  td {
+    padding: 9px var(--s2);
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    font-weight: 400;
+  }
+
+  thead th {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--forecast);
+  }
+
+  tbody th {
+    font-weight: 500;
+  }
+}
+
+.num {
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+.rowNote {
+  font-weight: 400;
+  color: var(--text-faint);
+  font-size: 12px;
+}
+
+.strong th,
+.strong td {
+  font-weight: 700;
+  font-size: 15px;
+  background: var(--forecast-soft);
+}
+
+.negative {
+  color: var(--danger);
+}
+
+.foot {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.how {
+  font-size: 13.5px;
+  color: var(--text-muted);
+
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  ol {
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s1);
+  }
+
+  p {
+    margin-top: var(--s2);
+  }
+}
+
+.title,
+.group legend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.cards {
+  display: grid;
+  gap: var(--s3);
+  grid-template-columns: 1fr;
+
+  @include from($bp-md) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.card {
+  padding: var(--s4);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.cardPos {
+  background: var(--ok-soft);
+  border-color: transparent;
+  color: var(--ok);
+}
+
+.cardNeg {
+  background: var(--danger-soft);
+  border-color: transparent;
+  color: var(--danger);
+}
+
+.cardLabel {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cardValue {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.cardNote {
+  font-size: 12px;
+  color: var(--text-muted);
+}
