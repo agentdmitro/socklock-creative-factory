@@ -10,6 +10,9 @@ const JOB_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 export const TEMPLATE_IDS: readonly TemplateId[] = ["statement", "editorial", "spotlight"];
 
+/** Serverless hosts (Vercel) keep no shared disk between requests, so nothing may depend on a stored upload or output. */
+export const isStateless = (): boolean => Boolean(process.env.VERCEL) || process.env.CVF_STATELESS === "1";
+
 export const isJobId = (v: string): boolean => JOB_ID.test(v);
 export const isTemplateId = (v: unknown): v is TemplateId =>
   typeof v === "string" && (TEMPLATE_IDS as readonly string[]).includes(v);

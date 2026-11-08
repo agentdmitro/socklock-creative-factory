@@ -15,6 +15,8 @@ export interface DoneItem {
   concept: Concept;
   result: RenderResult;
   version: number;
+  /** Blob URL when the host keeps no files (the video lives in this tab). */
+  url?: string;
   decision: "accepted" | "rejected";
   /** Optional note the reviewer wrote when rejecting. Kept in this browser tab only, never sent anywhere. */
   reason: string;
@@ -30,12 +32,13 @@ export interface DoneState {
 
 interface Props {
   done: DoneState;
+  onExport: (id: Concept["id"]) => void;
   onNew: () => void;
   onInsights: () => void;
 }
 
 /** Shown after "Finish session": the approved videos ready to download, and what was rejected and why. */
-export function StepDone({ done, onNew, onInsights }: Props) {
+export function StepDone({ done, onExport, onNew, onInsights }: Props) {
   const accepted = done.items.filter((i) => i.decision === "accepted");
   const rejected = done.items.filter((i) => i.decision === "rejected");
   const { summary: s, conceptStats: c } = done;
@@ -65,7 +68,7 @@ export function StepDone({ done, onNew, onInsights }: Props) {
           <div className={styles.grid}>
             {accepted.map((i) => (
               <article key={i.concept.id} className={`${shared.card} ${styles.item}`} aria-label={`${i.concept.angle}, approved`}>
-                <VideoPreview src={outputUrl(done.jobId, i.result.file, i.version)} title={`${i.concept.angle}, approved`} />
+                <VideoPreview src={i.url ?? outputUrl(done.jobId, i.result.file, i.version)} title={`${i.concept.angle}, approved`} />
                 <div className={styles.meta}>
                   <div className={styles.titleRow}>
                     <h4 className={styles.name}>{i.concept.angle}</h4>
@@ -75,7 +78,7 @@ export function StepDone({ done, onNew, onInsights }: Props) {
                   <p className={styles.small}>{i.concept.onScreenText} · {i.concept.cta}</p>
                   <p className={styles.small}>{i.result.width}×{i.result.height} · {fmtBytes(i.result.sizeBytes)}</p>
                 </div>
-                <LinkButton icon={Download04Icon} download href={outputUrl(done.jobId, i.result.file, i.version, { sessionId: done.sessionId })}>Download MP4</LinkButton>
+                <LinkButton icon={Download04Icon} download={i.result.file} onClick={() => i.url && onExport(i.concept.id)} href={i.url ?? outputUrl(done.jobId, i.result.file, i.version, { sessionId: done.sessionId })}>Download MP4</LinkButton>
               </article>
             ))}
           </div>

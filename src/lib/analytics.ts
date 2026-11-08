@@ -37,6 +37,7 @@ export const CLIENT_EVENT_TYPES: readonly EventType[] = [
   "concept_rejected",
   "variant_accepted",
   "variant_rejected",
+  "variant_exported",
 ];
 
 export type Scalar = string | number | boolean | null;

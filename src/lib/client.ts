@@ -13,6 +13,23 @@ const post = <T>(url: string, body: unknown) =>
 export const getHealth = () => fetch("/api/health", { cache: "no-store" }).then((r) => parse<HealthReport>(r));
 export const getConcepts = (req: ConceptRequest) => post<ConceptResponse>("/api/concepts", req);
 export const renderVariant = (req: RenderRequest) => post<RenderResult>("/api/render", req);
+
+/**
+ * Stateless render: the video travels with the request and the MP4 comes back in the response, so it works on hosts
+ * where one request cannot see another's files. The result is held in the browser as a blob URL.
+ */
+export async function renderInline(file: File, req: Omit<RenderRequest, "jobId">): Promise<{ result: RenderResult; url: string }> {
+  const form = new FormData();
+  form.set("meta", JSON.stringify({ ...req, jobId: "" }));
+  form.set("file", file, "source.mp4");
+  const res = await fetch("/api/render", { method: "POST", body: form });
+  if (!res.ok) {
+    const data = (await res.json().catch(() => null)) as Partial<ApiError> | null;
+    throw new Error(data?.error ?? (res.status === 413 ? "The video is too large for this host (about 4.5 MB). Use a shorter or more compressed clip." : "Rendering failed. Please try again."));
+  }
+  const result = JSON.parse(decodeURIComponent(res.headers.get("x-render-result") ?? "")) as RenderResult;
+  return { result, url: URL.createObjectURL(await res.blob()) };
+}
 export const deleteJob = (id: string) => fetch(`/api/jobs/${id}`, { method: "DELETE" }).catch(() => undefined);
 
 export function uploadSource(file: File, onProgress: (pct: number) => void, sessionId?: string): Promise<SourceInfo> {

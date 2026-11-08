@@ -138,6 +138,8 @@ export interface HealthReport {
   font: string | null;
   problems: string[];
   ai: AiStatus;
+  /** True on hosts without durable shared storage (Vercel): the browser carries the video with every render and receives the result. */
+  stateless: boolean;
 }
 
 export interface ApiError {

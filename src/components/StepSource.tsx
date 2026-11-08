@@ -32,6 +32,8 @@ interface Props {
   onFields: (next: SourceFields, charDelta: number) => void;
   onContinue: () => void;
   source: SourceInfo | null;
+  /** Browser-side URL of the chosen file; used when the server cannot serve it back (stateless hosts). */
+  previewUrl: string | null;
   upload: { active: boolean; pct: number };
   range: { start: number; end: number };
   fit: FitMode;
@@ -149,7 +151,7 @@ export function StepSource(p: Props) {
 
         {source && (
           <div className={styles.preview}>
-            <video ref={video} className={styles.video} src={sourceUrl(source.jobId)} controls preload="metadata" playsInline muted />
+            <video ref={video} className={styles.video} src={p.previewUrl ?? sourceUrl(source.jobId)} controls preload="metadata" playsInline muted />
             <div className={shared.chips}>
               <span className={shared.chip}>{source.fileName}</span>
               <span className={shared.chip}>{fmtTime(source.durationSec)}</span>

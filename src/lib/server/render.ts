@@ -4,7 +4,7 @@ import path from "node:path";
 import { LIMITS, OUTPUT, type RenderRequest, type RenderResult } from "@/lib/types";
 import { ffmpeg, ffprobe, ProcessError } from "./binaries";
 import { ctaCard, DEMO_WINDOW, demoBackdrop, hookCard } from "./cards";
-import { isJobId, outputName, outputPath, sourcePath, workDir } from "./jobs";
+import { isJobId, isStateless, outputName, outputPath, sourcePath, workDir } from "./jobs";
 import { probeSource } from "./probe";
 
 const probed = new Map<string, number>();
@@ -110,6 +110,8 @@ export async function renderVariant(req: RenderRequest): Promise<Omit<RenderResu
       "-map", "[vout]", "-map", "4:a",
       "-t", String(total),
       "-c:v", "libx264", "-preset", "veryfast", "-crf", "21", "-pix_fmt", "yuv420p", "-profile:v", "high",
+      // Serverless responses are capped at ~4.5 MB: keep a 10 s clip safely under it.
+      ...(isStateless() ? ["-maxrate", "2500k", "-bufsize", "5000k"] : []),
       "-c:a", "aac", "-b:a", "64k",
       "-movflags", "+faststart",
       tmpOut,

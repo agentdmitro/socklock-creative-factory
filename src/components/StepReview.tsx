@@ -18,7 +18,7 @@ export type Decision = "pending" | "accepted" | "rejected";
 export type RenderState =
   | { status: "queued" }
   | { status: "rendering" }
-  | { status: "done"; result: RenderResult; version: number; key: string }
+  | { status: "done"; result: RenderResult; version: number; key: string; url?: string }
   | { status: "error"; message: string };
 
 interface Props {
@@ -34,6 +34,7 @@ interface Props {
   busy: boolean;
   summary: SessionSummary;
   conceptStats: { generated: number; approved: number; rejected: number };
+  onExport: (id: ConceptId) => void;
   onReason: (id: ConceptId, text: string) => void;
   onDecide: (id: ConceptId, decision: "accepted" | "rejected") => void;
   onRetry: (id: ConceptId) => void;
@@ -116,7 +117,7 @@ export function StepReview(p: Props) {
         <section className={`${shared.card} ${styles.stage}`} aria-label={`Variation ${index + 1}: ${current.angle}`}>
           <div className={styles.media}>
             {r?.status === "done" ? (
-              <VideoPreview key={`${current.id}-${r.version}`} src={outputUrl(p.jobId, r.result.file, r.version)} title={`Variation ${index + 1}, ${current.angle}`} />
+              <VideoPreview key={`${current.id}-${r.version}`} src={r.url ?? outputUrl(p.jobId, r.result.file, r.version)} title={`Variation ${index + 1}, ${current.angle}`} />
             ) : r?.status === "error" ? (
               <div className={styles.placeholder} role="alert">
                 <p className={styles.errorText}>{r.message}</p>
@@ -161,7 +162,7 @@ export function StepReview(p: Props) {
                 {decision === "rejected" ? "Rejected" : "Reject"}
               </Button>
               {r?.status === "done" && decision === "accepted" && !isOutdated ? (
-                <LinkButton icon={Download04Icon} download href={outputUrl(p.jobId, r.result.file, r.version, { sessionId: p.sessionId })}>Download MP4</LinkButton>
+                <LinkButton icon={Download04Icon} download={r.result.file} onClick={() => r.url && p.onExport(current.id)} href={r.url ?? outputUrl(p.jobId, r.result.file, r.version, { sessionId: p.sessionId })}>Download MP4</LinkButton>
               ) : (
                 <Button icon={Download04Icon} disabled title="Accept this video to enable the download">Download MP4</Button>
               )}

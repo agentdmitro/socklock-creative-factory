@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { deleteJob, getConcepts, getHealth, renderVariant, uploadSource } from "@/lib/client";
+import { deleteJob, getConcepts, getHealth, renderInline, renderVariant, uploadSource } from "@/lib/client";
 import { useSessionTracker } from "@/lib/telemetry";
 import { RENDERED_FIELDS, editSize, initialStatus, selectedConcepts } from "@/lib/concepts";
 import { COPY_FIELDS, DEFAULT_CONCEPT_COUNT, DEFAULT_RENDER_COUNT, LIMITS, type Concept, type ConceptId, type ConceptStatus, type CopyField, type FitMode, type GenerationReport, type HealthReport, type ProviderId, type RenderResult, type SourceInfo } from "@/lib/types";
@@ -19,7 +19,7 @@ import { StepReview, type Decision, type RenderState } from "./StepReview";
 import styles from "./Factory.module.scss";
 
 const EMPTY_FIELDS: SourceFields = { script: "", product: "", cta: "" };
-const OFFLINE: HealthReport = { ok: false, ffmpeg: null, ffprobe: null, font: null, problems: ["Cannot reach the local server. Is `npm run dev` still running?"], ai: { defaultProvider: "mock", gemini: { configured: false, model: "" } } };
+const OFFLINE: HealthReport = { ok: false, ffmpeg: null, ffprobe: null, font: null, problems: ["Cannot reach the local server. Is `npm run dev` still running?"], stateless: false, ai: { defaultProvider: "mock", gemini: { configured: false, model: "" } } };
 
 function subscribeHash(notify: () => void) {
   window.addEventListener("hashchange", notify);
@@ -37,6 +37,9 @@ export function Factory() {
   const [checking, setChecking] = useState(false);
   const [step, setStep] = useState(0);
   const [source, setSource] = useState<SourceInfo | null>(null);
+  // The chosen file stays in the browser: on stateless hosts it is sent with every render and previewed from a blob URL.
+  const sourceFile = useRef<File | null>(null);
+  const [localSourceUrl, setLocalSourceUrl] = useState<string | null>(null);
   const [upload, setUpload] = useState<{ active: boolean; pct: number }>({ active: false, pct: 0 });
   const [fields, setFields] = useState<SourceFields>(EMPTY_FIELDS);
   const [range, setRange] = useState({ start: 0, end: 8 });
@@ -144,6 +147,11 @@ export function Factory() {
           invalidate(renderedIds(), "source");
           void deleteJob(source.jobId);
         }
+        sourceFile.current = file;
+        if (health?.stateless) setLocalSourceUrl((old) => {
+          if (old) URL.revokeObjectURL(old);
+          return URL.createObjectURL(file);
+        });
         setSource(info);
         setRange({ start: 0, end: Math.min(info.durationSec, 8) });
         setRenders({});
@@ -157,7 +165,7 @@ export function Factory() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [source, toast, tracker, renders],
+    [source, toast, tracker, renders, health],
   );
 
   const activeProvider: ProviderId = provider ?? "mock";
@@ -261,10 +269,19 @@ export function Factory() {
         const key = keys[id];
         setRenders((r) => ({ ...r, [id]: { status: "rendering" } }));
         try {
-          const result: RenderResult = await renderVariant({
-            jobId: source.jobId, startSec: range.start, endSec: range.end, fit, cta: concept.cta, brand, concept, sessionId: tracker.sid ?? undefined,
+          const base = { startSec: range.start, endSec: range.end, fit, cta: concept.cta, brand, concept, sessionId: tracker.sid ?? undefined };
+          let result: RenderResult;
+          let url: string | undefined;
+          if (health?.stateless) {
+            if (!sourceFile.current) throw new Error("The source video is no longer in this tab. Upload it again.");
+            ({ result, url } = await renderInline(sourceFile.current, base));
+          } else {
+            result = await renderVariant({ ...base, jobId: source.jobId });
+          }
+          setRenders((r) => {
+            if (r[id]?.status === "done" && (r[id] as { url?: string }).url) URL.revokeObjectURL((r[id] as { url: string }).url);
+            return { ...r, [id]: { status: "done", result, version: Date.now(), key, url } };
           });
-          setRenders((r) => ({ ...r, [id]: { status: "done", result, version: Date.now(), key } }));
         } catch (err) {
           failures++;
           setRenders((r) => ({ ...r, [id]: { status: "error", message: err instanceof Error ? err.message : "Rendering failed." } }));
@@ -290,6 +307,8 @@ export function Factory() {
   const resetAll = () => {
     if (source) void deleteJob(source.jobId);
     tracker.end();
+    sourceFile.current = null;
+    setLocalSourceUrl(null);
     setSource(null);
     setFields(EMPTY_FIELDS);
     setConcepts([]);
@@ -322,7 +341,7 @@ export function Factory() {
     for (const c of rendered) {
       const r = renders[c.id];
       const d = effective(c.id);
-      if (r?.status === "done" && (d === "accepted" || d === "rejected")) items.push({ concept: c, result: r.result, version: r.version, decision: d, reason: d === "rejected" ? (reasons[c.id] ?? "").trim() : "" });
+      if (r?.status === "done" && (d === "accepted" || d === "rejected")) items.push({ concept: c, result: r.result, version: r.version, url: r.url, decision: d, reason: d === "rejected" ? (reasons[c.id] ?? "").trim() : "" });
     }
     setDone({ jobId: source?.jobId ?? "", sessionId: tracker.sid ?? "", items, summary: tracker.summary(), conceptStats: { generated: concepts.length, approved: concepts.filter((c) => status[c.id] === "approved").length, rejected: concepts.filter((c) => status[c.id] === "rejected").length } });
     tracker.end(); // the source video stays on disk until "Start a new session", so the downloads keep working
@@ -378,10 +397,11 @@ export function Factory() {
           {!done && <Stepper current={step} reachable={reachable} onGo={(i) => !isRendering && setStep(i)} />}
 
           <div className={styles.body} id="main-content" ref={bodyRef}>
-            {done && <StepDone done={done} onNew={resetAll} onInsights={showInsights} />}
+            {done && <StepDone done={done} onExport={(id) => health?.stateless && tracker.exported(id)} onNew={resetAll} onInsights={showInsights} />}
             {!done && step === 0 && (
               <StepSource
                 source={source}
+                previewUrl={localSourceUrl}
                 upload={upload}
                 fields={fields}
                 count={count}
@@ -443,6 +463,7 @@ export function Factory() {
                 busy={isRendering}
                 summary={tracker.summary()}
                 conceptStats={conceptStats}
+                onExport={(id) => health?.stateless && tracker.exported(id)}
                 onDecide={decide}
                 onRetry={(id) => runRenders([id])}
                 onUpdateOutdated={() => runRenders(pendingRender())}

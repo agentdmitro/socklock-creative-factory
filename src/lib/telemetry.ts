@@ -151,6 +151,12 @@ export class SessionTracker {
   }
 
   /** Reports a human decision or milestone, followed by a cumulative time snapshot. */
+  /** A download the browser made itself (stateless hosts); on other hosts the server logs it when it serves the file. */
+  exported(variant: ConceptId) {
+    if (!this.sid) return;
+    this.send([{ type: "variant_exported", variant }]);
+  }
+
   track(type: "concept_approved" | "concept_rejected" | "variant_accepted" | "variant_rejected" | "session_completed", variant?: ConceptId) {
     if (!this.sid) return;
     this.touch();

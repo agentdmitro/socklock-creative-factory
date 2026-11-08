@@ -22,9 +22,9 @@ export function Button({ variant = "secondary", loading = false, icon, iconEnd, 
   );
 }
 
-export function LinkButton({ href, children, download, icon }: { href: string; children: ReactNode; download?: boolean; icon?: IconSvgElement }) {
+export function LinkButton({ href, children, download, icon, onClick }: { href: string; children: ReactNode; download?: boolean | string; icon?: IconSvgElement; onClick?: () => void }) {
   return (
-    <a href={href} download={download} className={`${styles.button} ${styles.secondary}`}>
+    <a href={href} download={download} onClick={onClick} className={`${styles.button} ${styles.secondary}`}>
       {icon && <Icon icon={icon} size={17} />}
       {children}
     </a>

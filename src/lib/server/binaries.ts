@@ -40,10 +40,10 @@ function versionOf(bin: string): Promise<string | null> {
   });
 }
 
-let healthCache: { at: number; value: Omit<HealthReport, "ai"> } | null = null;
+let healthCache: { at: number; value: Omit<HealthReport, "ai" | "stateless"> } | null = null;
 
 /** `maxAgeMs` lets hot paths (uploads) reuse a recent healthy result instead of spawning two processes each time. */
-export async function checkHealth(maxAgeMs = 0): Promise<Omit<HealthReport, "ai">> {
+export async function checkHealth(maxAgeMs = 0): Promise<Omit<HealthReport, "ai" | "stateless">> {
   if (maxAgeMs && healthCache?.value.ok && Date.now() - healthCache.at < maxAgeMs) return healthCache.value;
   const [ffmpeg, ffprobe] = await Promise.all([FFMPEG().then(versionOf), FFPROBE().then(versionOf)]);
   const font = fontPath();
